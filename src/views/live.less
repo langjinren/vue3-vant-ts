@@ -1,0 +1,33 @@
+@import "@/styles/theme.less";
+
+.content {
+  width: 100%;
+  height: 100%;
+  padding: @p15;
+  box-sizing: border-box;
+  text-align: justify;
+  color: @text-color;
+  .title {
+    font-size: @title-font-size;
+    margin: 0;
+    line-height: @lh20;
+    color: @text-color;
+  }
+  .tip {
+    color: #9f9f9f;
+    font-size: 12px;
+    margin: 10px 0;
+  }
+}
+
+.van-button.to_send_btn, .van-cell.to_send_content {
+  margin-top: @mt20;
+}
+
+.van-field__body, .van-cell.to_send_content {
+  background-color: @bg;
+}
+
+.van-cell.to_send_content::after {
+  border-width: @width;
+}
