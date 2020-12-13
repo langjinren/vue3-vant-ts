@@ -1,55 +1,47 @@
 import { defineComponent, reactive, onMounted, ref } from 'vue';
-import { sendDanmu } from "@/api/live";
 import utils from '@/utils/utils'
-import './live.less';
+import { sendDanmu } from "@/api/live";
+import { Toast, Dialog } from "vant";
 
 export default defineComponent({
   name: 'Live',
   setup() {
-    const user_id = ref<string | number>('');
-    const platform = ref<string>('');
-    const platform_name = ref<string>('');
-    const app_version = ref<string>('');
-    const live_id = ref<string>('');
-    const device_id = ref<string>('');
-    const channel_id = ref<string>('');
-    const channel_name = ref<string>('');
-    const play_length = ref<string>('');
-    const current_timestamp = ref<string>('');
-    const end_timestamp = ref<string>('');
-    const sign_key = ref<string>('');
-    const message = ref<string>('');
-
+    let message = ref<string>('');
     let state = reactive({
       user_id: '',
       platform: '',
       platform_name: '',
-      app_version: ''
+      app_version: '',
+      live_id: '',
+      device_id: '',
+      channel_id: '',
+      channel_name: '',
+      play_length: '',
+      current_timestamp: '',
+      end_timestamp: '',
+      sign_key: ''
     });
 
-    // onBeforeMount(() => {
-    //   let { user_id } = this.$route.params
-    //   console.log(user_id)
-    // })
-
     onMounted(() => {
-      console.log('mounted!');
-      console.log(utils.getUrlKey('id'))
-      console.log(user_id.value)
-      // console.log(router)
+      state.user_id = utils.getUrlKey('user_id')
+      state.platform = utils.getUrlKey('platform')
+      state.platform_name = utils.getUrlKey('platform_name')
+      state.app_version = utils.getUrlKey('app_version')
+      state.live_id = utils.getUrlKey('live_id')
+      state.device_id = utils.getUrlKey('device_id')
+      state.channel_id = utils.getUrlKey('channel_id')
+      state.play_length = utils.getUrlKey('play_length')
+      state.current_timestamp = utils.getUrlKey('current_timestamp')
+      state.end_timestamp = utils.getUrlKey('end_timestamp')
+      state.channel_name = decodeURIComponent(utils.getUrlKey('channel_name'))
     });
 
     function handeleContentChange(event: any) {
-      // content.value = event.target.value;
-    }
-
-    const handleSubmit = () => {
-      console.log(111)
-      toSendDanmu()
-      // 打成json拷贝，是为了防止传地址过去被一直引用问题，现在vue3 rc新版本修复了
-      // JSON.parse(JSON.stringify({ username:username.value, content:content.value }))
-      // props.submitComment(  {username:username.value, content:content.value }  )
-      // content.value = ''
+      message.value = event.target.value.trim()
+      if (message.value.length >= 20) {
+        event.target.blur()
+        Toast('弹幕最多20个字~')
+      }
     }
 
     const handleFocus = () => {
@@ -60,59 +52,87 @@ export default defineComponent({
       console.log('handleBlur')
     }
 
-    const toSendDanmu = () => {
-      sendDanmu({
-        'user_id': '1'
-      }).then(res => {
+    const closePage = () => {
+      let ua = navigator.userAgent.toLowerCase();
+      // @ts-ignore
+      let tag = ua.match(/MicroMessenger/i) == "micromessenger";
+      if (tag) {
+        window.WeixinJSBridge.call('closeWindow');
+      } else if (ua.indexOf("alipay") != -1) {
+        window.AlipayJSBridge.call('closeWebview');
+      } else if (ua.indexOf("baidu") != -1) {
+        window.BLightApp.closeWindow();
+      } else {
+        window.close();
+      }
+    }
 
+    const handleSubmit = () => {
+      if (message.value.trim().length == 0) {
+        Toast('弹幕内容不能为空哦~')
+        return
+      }
+      sendDanmu({
+        user_id: state.user_id,
+        platform: state.platform,
+        platform_name: state.platform_name,
+        app_version: state.app_version,
+        live_id: state.live_id,
+        device_id: state.device_id,
+        channel_id: state.channel_id,
+        channel_name: state.channel_name,
+        play_length: state.play_length,
+        current_timestamp: state.current_timestamp,
+        end_timestamp: state.end_timestamp,
+        sign_key: state.sign_key,
+        message: message.value
+      }).then((res: any) => {
+        if (res.error_code == 0) {
+          if (res.content.status == true) {
+            Toast('弹幕发送成功～')
+            message.value = ""
+          }
+        } else if (res.error_code == 250710000000) {
+          message.value = ""
+          Dialog.alert({
+            title: '提示',
+            message: '页面已过期，请重新扫描二维码~',
+            className: 'live-layer-class',
+            width: 300
+          }).then(() => {
+            closePage();
+          });
+        } else {
+          Toast(res.error_info)
+        }
       });
     }
 
     return () => (
       <div class="content">
-        <p class="title" id="title">加载中...</p>
-        {/* <div className="to_send_content_wrap">
+        <p class="title" id="title">{state.channel_name}</p>
+        <div class="to_send_content_wrap">
           <textarea
-            className="to_send_content"
+            value={message.value}
+            maxlength={20}
+            v-focus
+            class="to_send_content"
             id="to_send_content"
             name="textarea"
-            // rows="10"
-            // cols="50"
-            // maxlength="20"
             placeholder="弹幕走一波..."
-            // autofocus="autofocus"
-            // value={message}
             onFocus={handleFocus}
             onBlur={handleBlur}
-            onChange={handeleContentChange}
+            onInput={handeleContentChange}
           ></textarea>
-        </div> */}
-        <van-field
-          class="to_send_content"
-          model={message}
-          rows="5"
-          autosize
-          label=""
-          type="textarea"
-          maxlength="100"
-          placeholder="弹幕走一波..."
-        ></van-field>
-
-        <van-button
-          class="to_send_btn"
-          type="danger"
-          size="large">
-          发送
-        </van-button>
-
-        {/* <div class="to_sumbit_wrap">
+        </div>
+        <div class="to_sumbit_wrap">
           <input
             class="to_sumbit"
             id="to_sumbit"
             type="button"
             value="发送"
             onClick={handleSubmit} />
-        </div> */}
+        </div>
         <p class="tip">注意：电视切换频道后，记得重新扫码发送弹幕哦~</p>
       </div>
     );

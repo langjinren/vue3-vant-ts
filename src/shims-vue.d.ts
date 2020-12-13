@@ -3,3 +3,9 @@ declare module '*.vue' {
   const component: DefineComponent<{}, {}, any>
   export default component
 }
+
+declare module 'axios' {
+  export interface AxiosInstance {
+    <T = any>(config: AxiosRequestConfig): Promise<T>;
+  }
+}
