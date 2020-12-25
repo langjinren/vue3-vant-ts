@@ -1,11 +1,16 @@
 import {
-  Field ,
-  Button,
-  Loading
+  Tab,
+  Tabs,
+  Grid,
+  GridItem,
+  Toast,
+  Dialog
 } from "vant"
 import { createApp } from "vue"
-import 'vant/lib/field/style/less'
-import 'vant/lib/button/style/less'
+// import 'vant/lib/grid/index.css'
+// import 'vant/lib/grid-item/index.css'
+// import 'vant/lib/toast/index.css'
+// import 'vant/lib/dialog/index.css'
 
 /**
  * @description 手动注册组件,达到按需加载目的
@@ -14,7 +19,10 @@ import 'vant/lib/button/style/less'
  * @returns void
  */
 export default function loadComponent(app: ReturnType<typeof createApp>) {
-  app.use(Field)
-  app.use(Button)
-  app.use(Loading)
+  app.use(Tab)
+  app.use(Tabs)
+  app.use(Grid)
+  app.use(GridItem)
+  app.use(Toast)
+  app.use(Dialog)
 }

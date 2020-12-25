@@ -22,14 +22,9 @@ service.interceptors.response.use(
     return response.data
   },
   (error: any) => {
-    if (
-      String(error)
-        .toLowerCase()
-        .indexOf('network error') >= 0
-    ) {
-      Toast('网络未连接,请检查网络后重试');
+    return {
+      error_info: '网络未连接,请检查网络后重试'
     }
-    return {data: {}};
   }
 )
 

@@ -1,15 +1,16 @@
 const path = require('path')
 // const CompressionPlugin = require('compression-webpack-plugin')
 const vantTheme = path.resolve(__dirname, "./src/styles/theme.less")
+const emoji_data = require('./src/mock/emoji.json');
+const result_data = require('./src/mock/result.json');
 
 function resolve (dir) {
   return path.join(__dirname, dir)
 }
 
 module.exports = {
-  publicPath: './',
-  // outputDir: '/usr/share/nginx/html/live/',
-  outputDir: './dist',
+  publicPath: 'https://langjinren.github.io/vue3-vant3-ts/',
+  outputDir: './docs',
   assetsDir: 'static',
   indexPath: 'index.html',
   runtimeCompiler: true,
@@ -35,13 +36,13 @@ module.exports = {
           })
         ]
       },
-      less: {
-        lessOptions: {
-          modifyVars: {
-            hack: `true; @import "${vantTheme}";`,
-          },
-        },
-      },
+      // less: {
+      //   lessOptions: {
+      //     modifyVars: {
+      //       hack: `true; @import "${vantTheme}";`,
+      //     },
+      //   },
+      // },
     },
     requireModuleExtension: true
   },
@@ -105,6 +106,14 @@ module.exports = {
     overlay: {
       warnings: false,
       errors: false
+    },
+    before(app){
+      app.get('/bullet_screen/get_emoji_list',(req,res,next)=>{
+        res.json(emoji_data);
+      })
+      app.post('/bullet_screen/add_bullet_screen_by_web',(req,res,next)=>{
+        res.json(result_data);
+      })
     }
   }
 }
