@@ -9,7 +9,7 @@ function resolve (dir) {
 }
 
 module.exports = {
-  publicPath: 'https://langjinren.github.io/vue3-vant3-ts/',
+  publicPath: './',
   outputDir: './docs',
   assetsDir: 'static',
   indexPath: 'index.html',
